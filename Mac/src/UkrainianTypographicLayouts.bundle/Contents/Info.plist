@@ -7,7 +7,7 @@
 	<key>CFBundleName</key>
 	<string>UkrainianTypographicLayouts</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>2.0.1</string>
 	<key>KLInfo_Russian (Typographic + Ukrainian)</key>
 	<dict>
 		<key>TICapsLockLanguageSwitchCapable</key>
