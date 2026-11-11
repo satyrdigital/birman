@@ -9,21 +9,30 @@ VERSION="2.0.0"
 BUNDLE_NAME="$(basename "$SRC")"
 DEST="Library/Keyboard Layouts/$BUNDLE_NAME"
 
-for tool in pkgbuild iconutil swift xmllint plutil ditto pkgutil; do
+for tool in pkgbuild iconutil swift python3 plutil ditto pkgutil; do
   command -v "$tool" >/dev/null || { echo "Missing tool: $tool" >&2; exit 1; }
 done
 test -d "$SRC/Contents/Resources"
 plutil -lint "$SRC/Contents/Info.plist" "$SRC/Contents/version.plist"
 
-count=0
-while IFS= read -r -d '' layout; do
-  xmllint --nonet --noout "$layout"
-  count=$((count + 1))
-done < <(find "$SRC/Contents/Resources" -name '*.keylayout' -type f -print0)
-if [[ "$count" -ne 5 ]]; then
-  echo "Expected 5 .keylayout sources, found $count" >&2
-  exit 1
-fi
+# Legacy Ukelele files are XML 1.1 and include numeric references to control
+# characters. libxml2/xmllint treats those as XML 1.0 invalid references.
+# Parse a validation-only in-memory copy, preserving the exact source payload.
+python3 - "$SRC/Contents/Resources" <<'PY'
+import pathlib, re, sys, xml.etree.ElementTree as ET
+paths = sorted(pathlib.Path(sys.argv[1]).glob("*.keylayout"))
+if len(paths) != 5:
+    raise SystemExit(f"Expected 5 keyboard layouts, found {len(paths)}")
+for path in paths:
+    data = path.read_text(encoding="utf-8-sig")
+    if not data.lstrip().startswith('<?xml version="1.1"'):
+        raise SystemExit(f"Expected XML 1.1 in {path}")
+    data = re.sub(r'&#(?:x0*(?:[0-8BCEF]|1[0-F])|0*(?:[0-8]|11|12|1[4-9]|2[0-9]|3[01]));', 'X', data, flags=re.I)
+    root = ET.fromstring(data)
+    if root.tag != "keyboard" or root.find("layouts") is None:
+        raise SystemExit(f"Invalid keyboard structure: {path}")
+print(f"Validated {len(paths)} legacy keylayout structures without modifying source files")
+PY
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
