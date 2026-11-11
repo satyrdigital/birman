@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-// Generate neutral "RU" icon with macOS built-in frameworks only.
+// Generate neutral "Ѣ" icon with macOS built-in frameworks only.
 // No keyboard event handling, shortcut reassignment, background service or daemon.
 guard CommandLine.arguments.count == 2 else {
     fputs("Usage: swift render-neutral-icon.swift output.icns\n", stderr)
@@ -50,7 +50,7 @@ func render(_ pixels: Int, to url: URL) throws {
         .font: font,
         .foregroundColor: NSColor.white
     ]
-    let string = NSAttributedString(string: "RU", attributes: attributes)
+    let string = NSAttributedString(string: "Ѣ", attributes: attributes)
     let size = string.size()
     string.draw(at: NSPoint(
         x: (CGFloat(pixels) - size.width) / 2,

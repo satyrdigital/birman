@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SRC="$ROOT/Mac/src/UkrainianTypographicLayouts.bundle"
 OUT_DIR="${1:-$ROOT/dist}"
-VERSION="2.0.0"
+VERSION="2.0.1"
 BUNDLE_NAME="$(basename "$SRC")"
 DEST="Library/Keyboard Layouts/$BUNDLE_NAME"
 
@@ -40,7 +40,7 @@ STAGING="$WORK/root"
 mkdir -p "$STAGING/Library/Keyboard Layouts" "$OUT_DIR"
 ditto "$SRC" "$STAGING/$DEST"
 
-# Render neutral "RU" .icns (not a country flag) from auditable Swift source.
+# Render neutral "Ѣ" .icns (not a country flag) from auditable Swift source.
 ICON="$STAGING/$DEST/Contents/Resources/Russian (Typographic + Ukrainian).icns"
 swift "$ROOT/Mac/scripts/render-neutral-icon.swift" "$ICON"
 test -s "$ICON"

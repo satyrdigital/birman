@@ -1,40 +1,35 @@
-# macOS installation (all users)
+# Типографічні розкладки для macOS
 
-This fork installs the keyboard layouts using a **native macOS installer package**. There is no Keyboard Installer.app, drag-and-drop step, daemon, key interception, or global keyboard shortcut remapping.
+Цей форк встановлює розкладки через стандартний пакет macOS (`.pkg`). Під час звичайного використання немає служб у тлі, перехоплення натискань або зміни системних комбінацій клавіш.
 
-## Build and install
+## Основна розкладка
 
-The package is assembled on a macOS runner from the checked-in XML keyboard sources using Apple's tools:
+У меню введення основна розкладка відображається як **«Кирилиця»** зі значком **Ѣ** замість прапора. Її звична базова кирилична розкладка залишається без змін; додаткові українські літери доступні через **Option (⌥)**. Це зміна лише назви та значка, а не призначення клавіш.
+
+## Завантаження та встановлення
+
+1. Відкрийте [GitHub Actions для пакета macOS](https://github.com/satyrdigital/birman/actions/workflows/macos-package.yml) та оберіть **успішний** запуск гілки `modernize/macos-flagless-security` з версією **2.0.1**.
+2. У розділі **Artifacts** завантажте `birman-macos-pkg`, розпакуйте ZIP та відкрийте `Birman-Typographic-Layouts-macOS-2.0.1.pkg`.
+3. Пакет встановлює `UkrainianTypographicLayouts.bundle` у `/Library/Keyboard Layouts/`. Попередній пакет **2.0.0** можна замінити новим без ручного видалення каталогу.
+4. Вийдіть із облікового запису macOS та увійдіть знову. Якщо стара назва лишилася, перезапустіть Mac.
+5. Відкрийте **System Settings → Keyboard → Text Input → Edit**, перевірте джерело **«Кирилиця»**. Якщо старий запис залишився в списку, спочатку перемкніться на **U.S.**, видаліть старе джерело зі списку та додайте його знову.
+6. Перевірте введення українських літер через **Option (⌥)** і перемикання між **U.S.** та **«Кирилиця»**.
+
+Пакет **не підписаний і не нотаризований**. macOS може показати попередження Gatekeeper; дозвіл на встановлення надає сам користувач через системний інтерфейс.
+
+## Важливі обмеження
+
+- Розкладка не змінює комбінацій перемикання мов та налаштувань клавіш-модифікаторів. Їх контролює macOS.
+- Значок Ѣ створюється **лише під час складання** за допомогою вбудованих засобів Apple. Скрипт не потрапляє до встановленого пакета.
+- Старий образ `Mac/dst/UkrainianTypographicLayouts.dmg` не є актуальним інсталятором цього форка.
+- Успішна збірка GitHub Actions підтверджує збирання пакета, але не замінює перевірки відображення назви та значка на конкретній версії macOS.
+
+## Локальне складання
+
+На Mac із доступними інструментами Apple запустіть:
 
 ```bash
 bash Mac/scripts/build-pkg.sh
 ```
 
-The unsigned package is written to `dist/Birman-Typographic-Layouts-macOS-2.0.0.pkg`. Alternatively, download the `birman-macos-pkg` artifact from the macOS package GitHub Actions run for this branch. The package is **not signed or notarized**; for personal use it can be built locally and installed with explicit user approval. Inspect the content and checksum before installing.
-
-- Install the `.pkg` with the macOS Installer interface. It copies `UkrainianTypographicLayouts.bundle` to `/Library/Keyboard Layouts/` (available for all local accounts).
-- **Log out and sign back in** to refresh input sources.
-- Open **System Settings → Keyboard → Text Input → Edit**, add `Russian (Typographic + Ukrainian)` and remove obsolete duplicates.
-- Ensure the layout appears as a selectable input source and test Ukrainian letters using the **Option** key.
-
-The installer cannot reliably activate a new input source on behalf of all users: macOS tracks chosen input sources **per user**. Installing it system-wide and enabling it per user are separate steps.
-
-## Shortcuts belong to macOS, not the layout
-
-This package installs **only keyboard layouts**. It does **not** alter shortcut or modifier settings. The shortcut `Command + Space` configured for input-source switching on a MacBook is therefore preserved. If left Alt on an external Windows keyboard is mapped to Command, `Alt + Space` on that keyboard invokes the **same** macOS shortcut. Both must be configured in macOS settings independently of the layout.
-
-If clicking the menu chooses the typographic layout but the shortcut does not:
-
-1. Ensure the typographic layout is in **System Settings → Keyboard → Text Input → Edit**, not just the installed layout folder.
-2. Remove the undesired standard Russian input source after verifying the typographic input source works.
-3. In **System Settings → Keyboard → Keyboard Shortcuts → Input Sources**, verify the exact shortcut used for the active source-switching action and check for Spotlight conflicts.
-4. Test the shortcut in TextEdit with exactly two active input sources; restart the session if the new source does not appear in the switcher.
-
-## Security boundaries
-
-- This is a static keyboard-layout bundle plus a **build-time-only** Swift icon generator.
-- The Swift icon generator is never installed or run on users' Macs.
-- No runtime processes, background services, keyboard hooks, login items, or scripts are included in the final package.
-- The neutral **RU** icon is rendered into the package payload instead of the inherited flag resource.
-- The inherited `Mac/dst/UkrainianTypographicLayouts.dmg` is **legacy** and must not be installed to test this version.
-- This package has not been validated on the target Apple Silicon Mac until explicitly tested; GitHub CI proves the build only.
+Готовий пакет буде у каталозі `dist/`.
